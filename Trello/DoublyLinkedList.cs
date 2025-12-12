@@ -5,7 +5,14 @@ public class TrelloList
     private NoteNode head; 
     private NoteNode tail;
 
-    // Thuộc tính để lấy tất cả các ghi chú
+    // Constructor đơn giản
+    public TrelloList()
+    {
+        head = null;
+        tail = null;
+    }
+
+    // Thuộc tính để lấy tất cả các ghi chú lalala
     public List<NoteEntry> GetAllNotes()
     {
         var notes = new List<NoteEntry>();
@@ -17,14 +24,6 @@ public class TrelloList
         }
         return notes;
     }
-
-    // Constructor đơn giản
-    public TrelloList()
-    {
-        head = null;
-        tail = null;
-    }
-
 
     // Add
     public void Add(NoteEntry data)
