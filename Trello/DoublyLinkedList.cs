@@ -228,7 +228,7 @@ public class TrelloList
         NoteNode current = head;
         while (current != null)
         {
-            Console.WriteLine($"\n[TITLE: {current.Data.Title}] - [BODY: {current.Data.Body}] -> ");
+            Console.WriteLine($"\n[TITLE: {current.Data.Title}] - [BODY: {current.Data.Body}] (CREATED: {current.Data.CreationDate.ToString("HH:mm:ss.fff")}) -> ");
             current = current.Next;
         }
         Console.WriteLine("NULL (Tail)");
@@ -241,7 +241,7 @@ public class TrelloList
         NoteNode current = tail;
         while (current != null)
         {
-            Console.WriteLine($"\n[TITLE: {current.Data.Title}] - [BODY: {current.Data.Body}] <- ");
+            Console.WriteLine($"\n[TITLE: {current.Data.Title}] - [BODY: {current.Data.Body}] (CREATED: {current.Data.CreationDate.ToString("HH:mm:ss.fff")}) <- ");
             current = current.Prev;
         }
         Console.WriteLine("NULL (Head)");
