@@ -5,7 +5,7 @@ public class TrelloList
     private NoteNode head; 
     private NoteNode tail;
 
-    // Thuộc tính để lấy tất cả các ghi chú.
+    // Thuộc tính để lấy tất cả các ghi chú
     public List<NoteEntry> GetAllNotes()
     {
         var notes = new List<NoteEntry>();
