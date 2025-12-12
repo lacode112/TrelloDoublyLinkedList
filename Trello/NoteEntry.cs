@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 public class NoteEntry
 {
-    // Tiêu đề của ghi chú để tìm kiếm, xóa, và swap.
     public string Title { get; set; }
 
     // Nội dung chi tiết của ghi chú.
