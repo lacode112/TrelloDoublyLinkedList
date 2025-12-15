@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Threading.Channels;
+using static System.Net.Mime.MediaTypeNames;
 public class TrelloList
 {
-    private NoteNode head; 
-    private NoteNode tail;
+    public NoteNode head;
+    public NoteNode tail;
 
     // Constructor đơn giản
     public TrelloList()
@@ -63,7 +66,7 @@ public class TrelloList
         return null; // Không tìm thấy.
     }
 
-    
+
     public void Remove(string title)
     {
         // 1. Kiểm tra danh sách rỗng
@@ -227,7 +230,7 @@ public class TrelloList
         NoteNode current = head;
         while (current != null)
         {
-            Console.WriteLine($"\n[TITLE: {current.Data.Title}] - [BODY: {current.Data.Body}] (CREATED: {current.Data.CreationDate.ToString("HH:mm:ss.fff")}) -> ");
+            Console.WriteLine($"\n[TITLE: {current.Data.Title}] - [BODY: {current.Data.Body}] (CREATED: {current.Data.CreationDate.ToString("HH:mm:ss.fff")}) - Priority: {current.Data.Priority} -> ");
             current = current.Next;
         }
         Console.WriteLine("NULL (Tail)");
@@ -240,9 +243,182 @@ public class TrelloList
         NoteNode current = tail;
         while (current != null)
         {
-            Console.WriteLine($"\n[TITLE: {current.Data.Title}] - [BODY: {current.Data.Body}] (CREATED: {current.Data.CreationDate.ToString("HH:mm:ss.fff")}) <- ");
+            Console.WriteLine($"\n[TITLE: {current.Data.Title}] - [BODY: {current.Data.Body}] (CREATED: {current.Data.CreationDate.ToString("HH:mm:ss.fff")}) - Priority: {current.Data.Priority} <- ");
             current = current.Prev;
         }
         Console.WriteLine("NULL (Head)");
+    }
+
+    //6 thuật toán bổ sung
+    //1. Đảo ngược danh sách
+    public void Reverse()
+    {
+        if (head == null || head.Next == null)
+            return; //Danh sách rỗng hoặc chỉ có một Node --> Không cần đảo ngược
+
+        NoteNode current = head;
+        NoteNode temp = null;
+
+        while (current != null)
+        {
+            temp = current.Prev; // lưu tạm Node trước
+            current.Prev = current.Next; // Next thành Prev
+            current.Next = temp; // Prev thành Next
+            current = current.Prev; // trỏ sang Node kế tiếp
+        }
+
+        // đổi head - tail
+        if (temp != null)
+        {
+            tail = head;
+            head = temp.Prev;
+        }
+    }
+
+    //2. Thuật toán Sort By Title/Date
+    public void SortByTitle(bool acseding) //Selection Sort 
+    {
+        if (head == null || head.Next == null)
+            return;
+
+        for (NoteNode current = head; current.Next != null; current = current.Next)
+        {
+            NoteNode min = current;
+            for (NoteNode scanner = current.Next; scanner != null; scanner = scanner.Next)
+            {
+                string minTitle = min.Data.Title;
+                string scannerTitle = scanner.Data.Title;
+
+                if ((acseding && (String.Compare(scannerTitle, minTitle, StringComparison.CurrentCultureIgnoreCase) < 0))
+                    || (!acseding && (String.Compare(scannerTitle, minTitle, StringComparison.OrdinalIgnoreCase) > 0)))
+                    min = scanner;
+            }
+            if (min != current)
+            {
+                //Swap Node
+                Swap(min.Data.Title, current.Data.Title);
+                current = min; // cập nhật current sau khi swap
+            }
+        }
+    }
+    public void SortByDate(bool acsedingg)//Bubble Sort 
+    {
+        if (head == null || head.Next == null)
+            return;
+        bool swapped = true;
+        while (swapped)
+        {
+            NoteNode current = head;
+            swapped = false;
+            while (current.Next != null)
+            {
+                NoteNode next = current.Next;
+                DateTime currentDate = current.Data.CreationDate;
+                DateTime nextDate = next.Data.CreationDate;
+                if ((acsedingg && (currentDate > nextDate))
+                    || (!acsedingg && (currentDate < nextDate)))
+                {
+                    if (current.Prev != null)
+                        current.Prev.Next = next;
+                    else
+                        head = next; //B thành head
+                    next.Prev = current.Prev;
+                    if (next.Next != null)
+                        next.Next.Prev = current;
+                    else
+                        tail = current; // A thành tail
+                    current.Next = next.Next;
+                    next.Next = current;
+                    current.Prev = next;
+                    // Đánh dấu đã swap
+                    swapped = true;
+                }
+                else
+                {
+                    current = current.Next;
+                }
+            }
+            if (!swapped)
+                break;
+        }
+    }
+    //3. Tìm kiếm theo từ khóa
+    public List<NoteNode> SearchKeyWord(string keyword) //SeqSearch
+    {
+        List<NoteNode> results = new List<NoteNode>();
+        if (head == null || string.IsNullOrEmpty(keyword))
+            return results;
+        for (NoteNode current = head; current != null; current = current.Next)
+        {
+            string title = current.Data.Title;
+            string body = current.Data.Body;
+            if (title.Contains(keyword, StringComparison.OrdinalIgnoreCase) || body.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                results.Add(current);
+        }
+        return results;
+    }
+    //4. Ghim Node lên đầu danh sách
+    public void PinToHead(string title)
+    {
+        NoteNode current = head;
+        while (current != null && !current.Data.Title.Contains(title, StringComparison.OrdinalIgnoreCase))
+            current = current.Next;
+        if (current != null && current != head)
+        {
+            current.Prev.Next = current.Next;
+            if (current.Next != null)
+                current.Next.Prev = current.Prev;
+            else
+                tail = current.Prev; //node ở cuối
+            current.Next = head;
+            head.Prev = current;
+            current.Prev = null;
+            head = current;
+        }
+    }
+
+    //5. Thuật toán Xóa tất cả 
+    public void RemoveAll()
+    {
+        NoteNode current = head;
+        while (current != null)
+        {
+            current.Next = null;
+            current.Prev = null;
+            current.Data = null;
+            current = current.Next;
+        }
+        head = tail = null;
+    }
+
+    //6. Thuật toán Sort By Priority
+    public void SortByPriority(bool acseding) //Insertion Sort
+    {
+        if (head == null || head.Next == null)
+            return;
+        NoteNode current = head.Next;
+        while (current != null)
+        {
+            NoteNode nextCurrent = current.Next;
+            NoteNode scan = current;
+            while (scan.Prev != null && ((acseding && scan.Prev.Data.Priority > scan.Data.Priority) ||
+                    (!acseding && scan.Prev.Data.Priority < scan.Data.Priority)))
+            {
+                NoteNode preScan = scan.Prev;
+                if (preScan.Prev != null)
+                    preScan.Prev.Next = scan;
+                else
+                    head = scan;
+                scan.Prev = preScan.Prev;
+                if (scan.Next != null)
+                    scan.Next.Prev = preScan;
+                else
+                    tail = preScan;
+                preScan.Next = scan.Next;
+                scan.Next = preScan;
+                preScan.Prev = scan;
+            }
+            current = nextCurrent;
+        }
     }
 }

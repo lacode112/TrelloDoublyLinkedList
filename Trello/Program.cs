@@ -10,7 +10,7 @@ public class Program
 
         TrelloList myKanban = new TrelloList();
 
-        Console.WriteLine("=======================================");
+        /*Console.WriteLine("=======================================");
         Console.WriteLine("         TEST DOUBLY LINKED LIST       ");
         Console.WriteLine("=======================================");
 
@@ -80,7 +80,53 @@ public class Program
         // Swap hai Node kế bên
         Console.WriteLine("Swap Task 2 và Task 3");
         myKanban.Swap("Task 2 - Updated", "Task 3");
+        myKanban.PrintForward();*/
+
+        Console.WriteLine("=======================================");
+        Console.WriteLine("         TEST 6 THUAT TOAN BO SUNG     ");
+        Console.WriteLine("=======================================");
+        NoteEntry note1 = new NoteEntry("A 1", "Code LinkedList", 4);
+        NoteEntry note2 = new NoteEntry("D 2", "Code 6 thuật táon bổ sung", 5);
+        NoteEntry note3 = new NoteEntry("C 3", "Code xử lí file json", 1);
+        NoteEntry note4 = new NoteEntry("Task 4", "Tạo giao diện Winform", 9);
+        NoteEntry note5 = new NoteEntry("B 5", "Viết báo cáo", 1);
+
+        myKanban.Add(note1);
+        myKanban.Add(note2);
+        myKanban.Add(note3);
+        myKanban.Add(note4);
+        myKanban.Add(note5);
+
+        //--- REVERSE ---
+        Console.WriteLine("\n--- 1. TEST REVERSE ---");
+        myKanban.Reverse();
         myKanban.PrintForward();
+
+        //--- SEARCH ---
+        Console.WriteLine("\n--- 2. TEST SEARCH (Chu 'CODE'---");
+        var result = myKanban.SearchKeyWord("CODE");
+        foreach (var note in result)
+            Console.WriteLine(note.Data.Title + ": " + note.Data.Body);
+
+        //--- PIN TO HEAD ---
+        Console.WriteLine("\n--- 3. TEST PIN TO HEAD (Pin 'C 3'---");
+        myKanban.PinToHead("C 3");
+        myKanban.PrintForward();
+
+        //--- SORT ---
+        Console.WriteLine("\n--- 4. TEST SORT BY PRIORITY ---");
+        myKanban.SortByPriority(true);
+        myKanban.PrintForward();
+        Console.WriteLine("\n--- 4. TEST SORT BY DATE ---");
+        myKanban.SortByDate(true);
+        myKanban.PrintForward();
+        Console.WriteLine("\n--- 4. TEST SORT BY TITLE ---");
+        myKanban.SortByTitle(true);
+        myKanban.PrintForward();
+
+        //--- REMOVE ALL ---
+        Console.WriteLine("\n--- 5. TEST CLEAR ALL ---");
+        myKanban.RemoveAll();
     }
 }
 
